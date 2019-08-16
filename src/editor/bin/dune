@@ -1,0 +1,7 @@
+(executable
+    (name JSONParserTest)
+    (package Oni2)
+    (public_name JSONParserTest)
+    (libraries unix str core Oni2.extensions)
+)
+    

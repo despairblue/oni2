@@ -14,3 +14,7 @@ module ExtHostTransport = ExtHostTransport;
 module ExtensionManifest = ExtensionManifest;
 module ExtensionScanner = ExtensionScanner;
 module TextmateClient = TextmateClient;
+module SnippetParser = SnippetParser;
+module JSONLexer = JSONLexer;
+module JSONParser = JSONParser;
+module Json = Json;

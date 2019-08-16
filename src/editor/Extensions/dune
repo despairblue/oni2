@@ -15,5 +15,14 @@
         ppx_deriving_yojson.runtime
         reason-jsonrpc
         Oni2.core
+        core
     )
     (preprocess (pps ppx_deriving_yojson ppx_deriving.show)))
+    
+(menhir
+ (modules JSONParser)
+)
+
+(ocamllex
+  (modules JSONLexer)
+)
