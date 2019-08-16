@@ -1,6 +1,6 @@
 (library
-    (name Oni_Extensions)
-    (public_name Oni2.extensions)
+    (name SnippetParser)
+    (public_name Oni2.SnippetParser)
     (libraries
         str
         bigarray
@@ -18,3 +18,7 @@
         core
     )
     (preprocess (pps ppx_deriving_yojson ppx_deriving.show)))
+    
+(menhir (modules Parser) )
+
+(ocamllex (modules Lexer) )

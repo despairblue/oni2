@@ -1,6 +1,6 @@
 open Core;
-open Oni_Extensions;
-open Oni_Extensions.JSONLexer;
+open SnippetParser;
+open SnippetParser.Lexer;
 open Lexing;
 
 let print_position = (outx, lexbuf) => {
@@ -15,11 +15,11 @@ let print_position = (outx, lexbuf) => {
 };
 
 let parse_with_error = lexbuf =>
-  try (JSONParser.prog(JSONLexer.read, lexbuf)) {
+  try (Parser.prog(Lexer.read, lexbuf)) {
   | SyntaxError(msg) =>
     fprintf(stderr, "%a: %s\n", print_position, lexbuf, msg);
     None;
-  | JSONParser.Error =>
+  | Parser.Error =>
     fprintf(stderr, "%a: syntax error\n", print_position, lexbuf);
     exit(-1);
   };
@@ -28,7 +28,7 @@ let parse_with_error = lexbuf =>
 let rec parse_and_print = lexbuf =>
   switch (parse_with_error(lexbuf)) {
   | Some(value) =>
-    printf("%a\n", Json.output_value, value);
+    printf("%a\n", Snippet.output_value, value);
     parse_and_print(lexbuf);
   | None => ()
   };
