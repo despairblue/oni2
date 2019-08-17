@@ -1,19 +1,15 @@
+%token DOLLAR
 %token <int> INT
-%token <float> FLOAT
-%token <string> STRING
-%token TRUE
-%token FALSE
-%token NULL
+%token COLON
+%token PIPE
+%token COMMA
 %token LEFT_BRACE
 %token RIGHT_BRACE
-%token LEFT_BRACK
-%token RIGHT_BRACK
-%token COLON
-%token COMMA
+%token <string> STRING
 %token EOF
 
 (* part "1" *)
-%start <Snippet.value option> prog
+%start <Snippet.svalue option> prog
 %%
 
 (* part "2" *)
@@ -24,21 +20,35 @@ prog:
 
 (* part "3" *)
 value:
-  | LEFT_BRACE; obj = obj_fields; RIGHT_BRACE    { `Assoc obj  }
-  | LEFT_BRACK; vl = list_fields; RIGHT_BRACK    { `List vl    }
-  | s = STRING                                   { `String s   }
-  | i = INT                                      { `Int i      }
-  | x = FLOAT                                    { `Float x    }
-  | TRUE                                         { `Bool true  }
-  | FALSE                                        { `Bool false }
-  | NULL                                         { `Null       }
+  | DOLLAR; i = INT                    { `TabStop i }
+  | DOLLAR; vl = placeholder_fields    { `Placeholder vl }
+  | DOLLAR; vl = choices               { `Choice vl }
+  | DOLLAR; vl = variable_with_default { `Variable vl }
+  | DOLLAR; vl = variable { `Variable vl }
   ;
 
-obj_fields:
-    obj = separated_list(COMMA, obj_field)    { obj } ;
-
-obj_field:
-    k = STRING; COLON; v = value              { (k, v) } ;
-
-list_fields:
-    vl = separated_list(COMMA, value)         { vl } ;
+placeholder_fields:
+    LEFT_BRACE 
+    i = INT 
+    COLON 
+    s = STRING 
+    RIGHT_BRACE { (i, s, []) }
+    
+choices:
+    LEFT_BRACE 
+    i = INT
+    PIPE 
+    vl = separated_list(COMMA, STRING) 
+    PIPE    
+    RIGHT_BRACE { (i, vl) }
+    
+variable_with_default:
+    LEFT_BRACE
+    name = STRING 
+    COLON 
+    default = STRING 
+    RIGHT_BRACE { (name, Some(default)) }
+  
+variable:
+    name = STRING { (name, None) }
+  

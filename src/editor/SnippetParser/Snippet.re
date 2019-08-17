@@ -8,44 +8,39 @@ type value = [
   | `String(string)
 ];
 
+type svalue = [
+  | `TabStop(int)
+  | `Placeholder(int, string, list(svalue))
+  | `Choice(int, list(string))
+  | `Variable(string, option(string))
+];
+
 /* part 1 */
 open Core;
 let rec output_value = outc =>
   fun
-  | `Assoc(obj) => print_assoc(outc, obj)
-  | `List(l) => print_list(outc, l)
-  | `String(s) => printf("\"%s\"", s)
-  | `Int(i) => printf("%d", i)
-  | `Float(x) => printf("%f", x)
-  | `Bool(true) => Out_channel.output_string(outc, "true")
-  | `Bool(false) => Out_channel.output_string(outc, "false")
-  | `Null => Out_channel.output_string(outc, "null")
+  | `TabStop(i) => printf("$%d", i)
+  | `Placeholder(index, placeholder, _list) =>
+    printf("${%d:%s}", index, placeholder)
+  | `Choice(index, choices) => print_list(outc, index, choices)
+  | `Variable(name, default) => {
+      switch (default) {
+      | Some(default) => printf("${%s:%s}", name, default)
+      | None => printf("$%s", name)
+      };
+    }
 
-and print_assoc = (outc, obj) => {
-  Out_channel.output_string(outc, "{ ");
-  let sep = ref("");
-  List.iter(
-    ~f=
-      ((key, value)) => {
-        printf("%s\"%s\": %a", sep^, key, output_value, value);
-        sep := ",\n  ";
-      },
-    obj,
-  );
-  Out_channel.output_string(outc, " }");
-}
-
-and print_list = (outc, arr) => {
-  Out_channel.output_string(outc, "[");
+and print_list = (outc, index, arr) => {
+  printf("${%d|", index);
   List.iteri(
     ~f=
       (i, v) => {
         if (i > 0) {
-          Out_channel.output_string(outc, ", ");
+          printf(",");
         };
-        output_value(outc, v);
+        printf("%s", v);
       },
     arr,
   );
-  Out_channel.output_string(outc, "]");
+  printf("|}");
 };
